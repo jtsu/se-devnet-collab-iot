@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# This code is originally from the Cisco DevNet Express Learning Labs
+# and has been modified for the Cisco SoCal SE Mini DevNet Lab.
 
 import requests
 

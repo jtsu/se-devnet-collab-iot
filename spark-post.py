@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 
+# This code is originally from the Cisco DevNet Express Learning Labs
+# and has been modified for the Cisco SoCal SE Mini DevNet Lab.
+
 from myspark import spark_get_room_id, spark_send_message
 import requests
-
-# Disable all warning messages since we're dealing with a
-# self-signed certificate on APIC-EM
-requests.packages.urllib3.disable_warnings()
 
 # We need to know our token and other information.
 # Make sure you either create your own room
 # or provide the name of the common event room.
-# Replace None with the value
-SPARK_TOKN = 'REPLACE_WITH_YOUR_SPARK_TOKEN'
-SPARK_ROOM = 'REPLACE_WITH_YOUR_SPARK_ROOM'
+SPARK_TOKN = "" # Your Spark Token
+SPARK_ROOM = "" # Your Spark Room
 
 # this is the variable of the room id we need to figure out:
 room_id = None
