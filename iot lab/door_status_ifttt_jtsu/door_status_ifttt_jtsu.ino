@@ -1,13 +1,12 @@
 #include <ESP8266WiFi.h>
 
-const int switchPin = 12;   // D6 Pin Connected to Reed Switch NC
-const int ledPin = LED_BUILTIN;      // D7 Pin Connected to LED
+const int switchPin = D6;   // D6 Pin Connected to Reed Switch NC
+const int ledPin = LED_BUILTIN;      
 
 const char* SSID = "AMS-IOT";
 const char* PSK = "amsiotday";
 
-const char* door_status = "intializing";
-const char* last_door_status = "none";
+String last_door_status = "none";
 
 WiFiClient client;
 
@@ -45,30 +44,28 @@ void setup() {
 
 
 
-void doorStatus() {
+String doorStatus() {
   //Checks the status of the reed switch
   
   if (digitalRead(switchPin) == 0) {
     digitalWrite(ledPin, LOW);
-    door_status = "closed";
-  }
-  else if (digitalRead(switchPin) == 1) {
-    //Door is open
-    digitalWrite(ledPin, HIGH);
-    door_status = "OPEN";
+    String door_status = "closed";
+    return door_status;
   }
   else {
-    // Switch failure
-    Serial.println();
-    Serial.println("ERROR: Reed Switch is floating.");
-
+    //Door is open
+    digitalWrite(ledPin, HIGH);
+    String door_status = "open";
+    return door_status;
   }
+
 }
 
-void startHttpReq() {
 
-  String MakerIFTTT_Key = "yourToken";
-  String MakerIFTTT_Event = "doorstatus";
+void startHttpReq(String door_status) {
+
+  String MakerIFTTT_Key = "";
+  String MakerIFTTT_Event = "";
 
   String path;
   path += "POST /trigger/";
@@ -83,11 +80,7 @@ void startHttpReq() {
   payload += "\"}";
 
 
-  Serial.println(path);
-  Serial.println(payload);
-  Serial.println(payload.length());
-  Serial.println("Sending SMS Notifiction Alert via IFTTT to Spark!");
-
+  Serial.println("Sending message via IFTTT to Spark!");
   
   if (client.connect("maker.ifttt.com", 80)) {  
     // Make a HTTP request
@@ -123,21 +116,17 @@ void startHttpReq() {
 
 void loop() {
 
-  last_door_status = door_status;
-  
-  doorStatus();    
+  String door_status = doorStatus();    
 
-  if (last_door_status == door_status) {
-    Serial.println("Door status has not changed.");
+  if (last_door_status != door_status) {
+    Serial.print("Door state has changed.  The door is now ");
+    Serial.println(door_status); 
+    last_door_status = door_status;
+    startHttpReq(door_status);
   }
   else {
-    Serial.println();
-    Serial.print("Door was ");
-    Serial.print(last_door_status);
-    Serial.print(" -- Door now ");
-    Serial.println(door_status); 
-
-    startHttpReq();
+    Serial.println("Door status has not changed.");
+    last_door_status = door_status;
   }
   delay(500);
 }
